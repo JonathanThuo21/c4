@@ -21,7 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'pggni(t+5rj@%zzmpw#orp_pmx2r%xo9v8_q_t#6wo@pf+n3sp'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'default-secret-key')  # Use a default for local development
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -137,8 +138,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL='home'
 LOGOUT_REDIRECT_URL='login'
 
-PAYPAL_RECEIVER_EMAIL = 'sb-c5xgx6555500@business.example.com'
-PAYPAL_TEST = True
+
 
 JET_SIDE_MENU_COMPACT = True
 
