@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    .order-row {
+      background-color: #f9f9f9;
+    }
+    .item-row {
+      background-color: #f1f1f1;
+    }
+</style>
+
+<h1>Orders</h1>
+
+<table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>User</th>
+        <th>Total Amount</th>
+        <th>Order Date</th>
+        <th>Status</th>
+        <th>Invoice No</th>
+        <th>Item</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total Item Price</th>
+        <th>Phone Number</th>
+        <th>Address</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+        <tr class="order-row">
+          <td rowspan="{{ order.cartorderitems_set.count }}">{{ order.id }}</td>
+          <td rowspan="{{ order.cartorderitems_set.count }}">{{ order.user.username }}</td>
+          <td rowspan="{{ order.cartorderitems_set.count }}">{{ order.total_amt }}</td>
+          <td rowspan="{{ order.cartorderitems_set.count }}">{{ order.order_dt }}</td>
+          <td rowspan="{{ order.cartorderitems_set.count }}">
+            <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="order_id" value="{{ order.id }}">
+              <select name="order_status" onchange="this.form.submit()">
+                <option value="In progress" {% if order.order_status == 'In progress' %}selected{% endif %}>In progress</option>
+                <option value="On the Way" {% if order.order_status == 'On the Way' %}selected{% endif %}>On the Way</option>
+                <option value="delivered" {% if order.order_status == 'delivered' %}selected{% endif %}>Delivered</option>
+              </select>
+            </form>
+          </td>
+          <td>{{ order.cartorderitems_set.first.invoice_no }}</td>
+          <td>{{ order.cartorderitems_set.first.item }}</td>
+          <td>{{ order.cartorderitems_set.first.qty }}</td>
+          <td>{{ order.cartorderitems_set.first.price }}</td>
+          <td>{{ order.cartorderitems_set.first.total }}</td>
+          {% with user_address=order.user.useraddressbook_set.last %}
+          <td>{{ user_address.phone_number }}</td>
+          {% endwith %}
+          <td>{{ order.location.location_name }}</td> <!-- Accessing location_name -->
+        </tr>
+        {% for item in order.cartorderitems_set.all %}
+          {% if not forloop.first %}  <!-- Skip the first item row -->
+          <tr class="item-row">
+            <td>{{ item.invoice_no }}</td>
+            <td>{{ item.item }}</td>
+            <td>{{ item.qty }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.total }}</td>
+            <td></td> <!-- Empty for the phone number on subsequent rows -->
+          </tr>
+          {% endif %}
+        {% empty %}
+          <tr>
+            <td colspan="11">No items found for this order.</td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

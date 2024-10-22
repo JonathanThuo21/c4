@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% load widget_tweaks %}
+
+<style>
+	.btn-add {
+        background-color: #00ff15;
+        border: none;
+
+	
+    }
+
+	
+</style>
+
+<main class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h3 class="text-center my-4 border-bottom pb-3">Sign Up</h3>
+            <form method="post" class="bg-light p-4 shadow rounded">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="id_username">Username</label>
+                    {{ form.username|add_class:"form-control" }}
+                    {% if form.username.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.username.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_first_name">First Name</label>
+                    {{ form.first_name|add_class:"form-control" }}
+                    {% if form.first_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.first_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_last_name">Last Name</label>
+                    {{ form.last_name|add_class:"form-control" }}
+                    {% if form.last_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.last_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_email">Email</label>
+                    {{ form.email|add_class:"form-control" }}
+                    {% if form.email.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_phone_number">Phone Number</label>
+                    {{ form.phone_number|add_class:"form-control" }}
+                    {% if form.phone_number.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.phone_number.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_password1">Password</label>
+                    {{ form.password1|add_class:"form-control" }}
+                    {% if form.password1.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password1.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_password2">Confirm Password</label>
+                    {{ form.password2|add_class:"form-control" }}
+                    {% if form.password2.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password2.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="text-center">
+                    <input type="submit" value="Register" class="btn btn-add btn-lg w-100 mt-3" />
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

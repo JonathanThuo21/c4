@@ -1,0 +1,45 @@
+<style>
+	.list-group-item {
+		font-size: 16px;
+		font-weight: bold;
+		color: #333;
+		background-color: #f8f9fa;
+		border: 1px solid #ddd;
+		padding: 12px 20px;
+		transition: background-color 0.3s ease;
+	}
+	
+	.list-group-item:hover {
+		background-color: #e9ecef;
+		color: #000;
+	}
+	
+	.list-group-item.active {
+		background-color: #28a745;
+		color: white;
+		border-color: #28a745;
+	}
+	
+	.text-danger.list-group-item {
+		font-weight: bold;
+		color: #dc3545;
+	}
+	
+	.text-danger.list-group-item:hover {
+		background-color: #f5c6cb;
+		color: #dc3545;
+	}
+	
+</style>
+
+
+<div class="list-group">
+	<a href="{% url 'my_dashboard' %}" class="list-group-item {% if request.path == '/my-dashboard' %}active {% endif %}">Dashboard</a>
+	<a href="{% url 'edit-profile' %}" class="list-group-item {% if request.path == '/edit-profile' %}active {% endif %}">Profile</a>
+	<a href="{% url 'my_orders' %}" class="list-group-item {% if request.path == '/my-orders' %}active {% endif %}">Orders</a>
+	<a href="{% url 'my_wishlist' %}" class="list-group-item {% if request.path == '/my-wishlist' %}active {% endif %}">Wishlist</a>
+	<a href="{% url 'my-reviews' %}" class="list-group-item {% if request.path == '/my-reviews' %}active {% endif %}">My Reviews</a>
+	<a href="{% url 'my-addressbook' %}" class="list-group-item {% if request.path == '/my-addressbook' %}active {% endif %}">Address Book</a>
+	<a href="{% url 'password_change' %}" class="list-group-item {% if request.path == '/accounts/password_change/' %}active {% endif %}">Password Change</a>
+	<a href="{% url 'logout' %}" class="text-danger list-group-item">Logout</a>
+</div>

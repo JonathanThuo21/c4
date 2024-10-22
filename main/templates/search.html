@@ -1,0 +1,505 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+
+	.card {
+		position: relative;
+	  }
+	  
+	  .product-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+		color: white;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		opacity: 0;
+		transition: opacity 0.3s ease-in-out;
+	  }
+	  
+	  .card:hover .product-overlay {
+		opacity: 1; /* Show overlay on hover */
+	  }
+	  
+	  .product-overlay h5, .product-overlay h6 {
+		margin: 0;
+	  }
+	  
+	  .product-overlay h5 {
+		font-size: 1.5rem;
+		font-weight: bold;
+	  }
+	  
+	  .product-overlay h6 {
+		font-size: 1.2rem;
+	  }
+	  
+	  .card-img-top {
+		width: 100%;
+		height: 200px; /* Fixed height for consistency */
+		object-fit: cover;
+	  }
+		
+	  
+
+	.custom-carousel-caption {
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  color: black;
+	  text-align: center;
+	  background-color: rgba(255, 255, 255, 0.1); /* Black background with 50% transparency */
+	  padding: 10px 20px; /* Adds some spacing around the text */
+	  border-radius: 10px; /* Optional: gives rounded corners */
+	 
+	}
+	
+	.carousel-caption h1 {
+	  font-size: 2.5rem;
+	  font-weight: bold;
+	  font-family: 'Dancing Script', cursive; /* Handwriting font for title */
+	}
+	
+	.carousel-caption p {
+	  font-size: 1.25rem;
+	  font-family: 'Pacifico', cursive; /* Handwriting font for subtitle */
+	}
+	
+  
+	.carousel-inner img {
+	height: 400px; /* Adjust the height to make the carousel smaller */
+	object-fit: cover; /* Ensure the images are resized properly */
+  }
+  
+  .carousel-container {
+	margin-bottom: 20px; /* Add space between the carousel and the featured products */
+  }
+  
+  
+  /* Base Styles */
+  .carousel-container {
+	position: relative;
+	width: 100%; /* Make sure carousel container takes full width */
+  }
+  
+  .featured-products {
+	padding: 20px;
+	background-color: #f8f9fa; /* Light background for contrast */
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 1200px) {
+	.featured-products {
+	  padding: 15px;
+	}
+  }
+  
+  @media (max-width: 992px) {
+	.featured-products {
+	  padding: 10px;
+	}
+  
+	.card {
+	  margin-bottom: 20px;
+	}
+  }
+  
+  @media (max-width: 768px) {
+	.featured-products {
+	  padding: 10px;
+	  font-size: 14px;
+	}
+  
+	.card {
+	  margin-bottom: 15px;
+	}
+  }
+  
+  @media (max-width: 576px) {
+	.featured-products {
+	  padding: 5px;
+	  font-size: 12px;
+	}
+  
+	.card {
+	  margin-bottom: 10px;
+	}
+  
+	.carousel-item img {
+	  height: auto;
+	}
+  }
+  
+  /* Style for full-width buttons */
+  .btn-full {
+	  width: 100%;
+	  margin-bottom: 10px;
+  }
+  
+  /* Center the star icon */
+  .card-footer {
+	  position: relative;
+  }
+  
+  .rating {
+	  position: absolute;
+	  bottom: 10px;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  text-align: center;
+  }
+  
+  /* Optional: Add some padding and margin to the buttons */
+  .btn {
+	  padding: 10px;
+	  font-size: 16px;
+  }
+  
+  /* Ensure that the buttons are properly spaced and the text is aligned */
+  .btn-add {
+	  background-color: #00ff15; /* Bootstrap primary color */
+	  border: none;
+  }
+  
+  .btn-cancel-add {
+	  background-color: #f82d01; /* Bootstrap primary color */
+	  border: none;
+  }
+  
+  .btn-danger {
+	  background-color: #dc3545; /* Bootstrap danger color */
+	  border: none;
+  }
+  
+  .disabled {
+	  opacity: 0.65;
+	  cursor: not-allowed;
+  }
+  
+  .product-name {
+	  color: white;
+	  text-decoration: none;
+  }
+  
+  /* Cart container styles */
+  .cart-container {
+	padding: 10px;
+	background-color: #f8f9fa;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+  }
+
+  .content-wrapper {
+    position: relative; /* Ensure proper positioning for child elements */
+    padding-right: 0px; /* Space for .cart-box */
+	z-index: 2000;
+}
+
+  
+  </style>
+
+  <style>
+	.cart-box {
+		position: relative; /* Change to relative */
+		right: 0; /* Remove this or set it as needed */
+		top: 60px; /* Keep this if you want it below the top */
+		width: 350px; /* Adjust width as needed */
+		max-height: 80vh; /* Allows for scrolling if content overflows */
+		overflow-y: auto; /* Adds vertical scroll if needed */
+		background-color: #fff;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		padding: 15px;
+		z-index: 1000;
+		border-radius: 8px;
+		margin-left: auto; /* This will push it to the right */
+		margin-right: 0; /* Optional, to ensure it's aligned */
+	}
+	
+	@media (max-width: 768px) {
+		.cart-box {
+			position: relative;
+			width: 100%;
+			left: 0;
+			right: 0;
+			top: 0;
+			max-height: 60vh;
+			box-shadow: none;
+			border-radius: 0;
+		}
+	}
+  
+	.cart-item {
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		padding: 10px;
+		background-color: #f9f9f9;
+	}
+  
+	.cart-item p {
+		margin: 0;
+	}
+  
+	.cart-item .d-flex {
+		display: flex;
+		align-items: center;
+	}
+  
+	.cart-item .d-flex.align-items-center {
+		align-items: center;
+	}
+  
+	.cart-item .d-flex.justify-content-between {
+		justify-content: space-between;
+	}
+  
+	.cart-item .input-container {
+		flex-grow: 1;
+		text-align: right;
+	}
+  
+	.cart-item .product-qty-{{product_id}} {
+		width: 100%;
+		max-width: 80px;
+	}
+  
+	.cart-item .btn.update-item {
+		flex-grow: 1;
+		text-align: center;
+	}
+  
+	.cart-item .btn.delete-item {
+		flex-shrink: 0;
+	}
+  
+	.cart-footer {
+		border-top: 1px solid #ddd;
+		padding-top: 10px;
+	}
+  
+	.cart-footer .btn {
+		font-size: 0.8rem;
+		padding: 5px 10px;
+	}
+  
+	.btn-add {
+		background-color: #00ff15;
+		border: none;
+	}
+  </style>
+
+  {% if order_status and order_status != 'delivered' %}
+  <div style="
+	  background-color: #f8d7da;
+	  color: #721c24;
+	  padding: 10px;
+	  border: 1px solid #f5c6cb;
+	  border-radius: 5px;
+	  font-family: 'Lobster', cursive;
+	  font-size: 25px;
+	  font-weight: bold;
+	  text-align: center;
+	  margin: 20px 0;
+  ">
+	  <p>Your previous order is: {{ order_status }}</p>
+  </div>
+{% endif %}
+
+
+
+  <div class="container">
+    <div class="row">
+        <div class="col-md-3 order-md-2 ">
+			<main class="container my-4" id="cartList">
+
+<!-- Cart Section -->
+<div class="cart-box">
+	<a class="nav-link btn-transparent text-dark position-relative" href="{% url 'cart' %}">
+	  <i class="fa fa-shopping-cart"></i> Cart 
+	  <span class="cart-list">{{ request.session.cartdata|length }}</span>
+	</a>
+	<a href="{{ whatsapp_url }}" target="_blank" style="display: inline-block; padding: 5px; color: white; background-color: #25D366; border-radius: 50%; text-decoration: none; text-align: center; float: right;">
+		<i class="fab fa-whatsapp" style="font-size: 24px;"></i>
+	  </a>
+	
+	<div class="cart-items">
+	  {% for product_id, item in cart_data.items %}
+	  <div class="cart-item d-flex flex-column mb-3">
+		<div>
+		  <p><a><h4>{{item.title}}</h4></a></p>
+		  <div class="d-flex align-items-center">
+			<label class="mb-0 me-2">Qty:</label>
+			<div class="input-container">
+				<button type="button" class="qty-btn" onclick="handleDecrease({{ product_id }})">-</button>
+				<input type="number" class="product-qty-{{product_id}}" value="{{item.qty}}" />
+				<button type="button" class="qty-btn" onclick="handleIncrease({{ product_id }})">+</button>
+			  </div>
+			  <style>
+				
+			  </style>
+			  <script>
+				function handleDecrease(productId) {
+					decreaseQty(productId);
+					document.getElementById('confirm-' + productId).click();
+				}
+				
+				function handleIncrease(productId) {
+					increaseQty(productId);
+					document.getElementById('confirm-' + productId).click();
+				}
+				</script>
+				<script>
+				  function increaseQty(productId) {
+					var qtyInput = document.querySelector(`.product-qty-${productId}`);
+					qtyInput.value = parseInt(qtyInput.value) + 1;
+				}
+				
+				function decreaseQty(productId) {
+					var qtyInput = document.querySelector(`.product-qty-${productId}`);
+					if (parseInt(qtyInput.value) > 1) {
+						qtyInput.value = parseInt(qtyInput.value) - 1;
+					}
+				}          
+				</script>
+		  </div>
+		</div>
+		<div class="d-flex justify-content-between align-items-center mt-2">
+		  <p class="mb-0">Price: KES {{item.price}}</p>
+		  <p class="mb-0">Total: KES {% widthratio item.price 1 item.qty %}</p>
+		</div>
+		<div class="mt-2 d-flex align-items-center">
+		  <a id="confirm-{{ product_id }}" class="btn btn-sm btn-add update-item" data-item="{{product_id}}">
+			Confirm
+		</a>
+		
+		  <button class="btn btn-sm btn-danger delete-item ms-2" data-item="{{product_id}}"><i class="fa fa-trash"></i></button>
+		</div>
+	  </div>
+	  {% endfor %}
+	</div>
+	<div class="cart-footer mt-3">
+	  <div class="d-flex justify-content-between">
+		<strong>Total</strong>
+		<strong>KES {{total_amt}}</strong>
+	  </div>
+	  {% if totalitems %}
+	  <div class="text-right mt-2">
+		<a href="{% url 'checkout' %}" class="btn btn-dark btn-sm">Checkout <i class="fa fa-long-arrow-alt-right"></i></a>
+	  </div>
+	  {% endif %}
+	</div>
+</div>
+</main>
+
+</div>
+<div class="col-md-9 order-md-1">
+
+
+
+
+<div class="content-wrapper" >
+	<main class="container my-4">
+		<div id="message-container" class="text-center my-4"></div>
+		<!-- Featured Products -->
+		<h3 class="my-4 border-bottom pb-1"><span class="text-muted">Search result for</span> {{request.GET.q}}</h3>
+		<div class="row">
+		{% for product in data %}
+		<div class="col-12 col-sm-6 col-md-12 col-lg-6 col-xl-4 mb-4">
+            <div class="card shadow">
+			  <a>
+				<img src="/media/{{ product.productattribute_set.first.image }}" class="card-img-top" alt="{{ product.title }}">
+			  </a>
+			  <!-- Overlay for Product Name and Price -->
+			  <div class="product-overlay">
+				<h5 class="product-name">{{ product.title }}</h5>
+				<h6>KES <span class="product-price-{{ product.id }}">{{ product.productattribute_set.first.price }}</span></h6>
+			  </div>
+			  <div class="card-footer">
+				{{ product.productattribute_set.first.color.title }}
+				<input type="hidden" value="1" class="form-control product-qty-{{ product.id }}" id="productQty" />
+				<input type="hidden" class="product-image-{{ product.id }}" value="{{ product.productattribute_set.first.image }}" />
+				<input type="hidden" class="product-id-{{ product.id }}" value="{{ product.id }}" />
+				<input type="hidden" class="product-title-{{ product.id }}" value="{{ product.title }}" />
+		  
+				<a>
+					<button class="btn btn-add btn-full add-to-cart" data-index="{{ product.id }}" id="add-to-cart-{{ product.id }}">
+						<i class="fa fa-shopping-cart"></i> Add to Cart
+					</button>
+				</a>
+				
+				<script>
+				  document.addEventListener('DOMContentLoaded', function() {
+					// Select all buttons with the 'add-to-cart' class
+					const addToCartButtons = document.querySelectorAll('.add-to-cart');
+				
+					addToCartButtons.forEach(button => {
+					  button.addEventListener('click', function() {
+						// Change the button text to 'Added'
+						button.innerHTML = '<i class="fa fa-check"></i> Added';
+				
+						// Optionally disable the button after clicking
+						//button.disabled = true;
+						
+						// Optionally style the button (e.g., change its color)
+						button.classList.add('btn-success'); // Adds Bootstrap's success style
+						button.classList.remove('btn-add'); // Removes the original button style
+					  });
+					});
+				  });
+				</script>
+				
+				{% if user.is_authenticated %}
+				<button class="btn btn-danger btn-full add-wishlist" data-product="{{ product.id }}">
+				  <i class="fa fa-heart"></i> Add to Wishlist
+				</button>
+				{% else %}
+				<button class="btn btn-danger btn-full disabled">
+				  <i class="fa fa-heart"></i> Add to Wishlist
+				</button>
+				{% endif %}
+			  </div>
+			</div>
+		  </div>
+		{% endfor %}
+		</div>
+	</main>
+</div>
+
+
+</div>
+</div>
+
+  
+
+<!-- JavaScript code -->
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+	  console.log('Script Loaded'); // Check if script is running
+	
+	  // Select all Add to Cart buttons
+	  const buttons = document.querySelectorAll('.add-to-cart');
+	
+	  buttons.forEach(button => {
+	  button.addEventListener('click', function () {
+		// Show success message
+		const productId = this.getAttribute('data-index');
+		const messageContainer = document.getElementById('message-container');
+		messageContainer.innerHTML = `<div class="alert alert-success">Item has been successfully added to your cart</div>`;
+	
+		// Optionally, you could hide the message after a few seconds
+		setTimeout(() => {
+		messageContainer.innerHTML = '';
+		}, 3000);
+	  });
+	  });
+	});
+  </script>
+
+{% endblock %}

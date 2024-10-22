@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>C4 Restaurant</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" type="text/css" href="{% static 'fontawesome-free/css/all.min.css' %}" />
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'bs4/bootstrap.min.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbvL7imemP8u5VEGZlkPncX9nq2RxcTqg&libraries=places">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+
+
+    <!-- Main Jquery -->
+    <script type="text/javascript" src="{% static 'jquery.min.js' %}"></script>
+    <!-- Bootstrap 4 JS -->
+    <script type="text/javascript" src="{% static 'bs4/bootstrap.min.js' %}"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'custom.css' %}" />
+    <script type="text/javascript" src="{% static 'custom.js' %}"></script>
+    <style>
+      /* Adjust based on the actual height of your navbar */
+      body {
+          padding-top: 56px; /* Height of fixed navbar */
+      }
+      .content {
+          margin-top: 20px; /* Optional: Add margin to the content for better spacing */
+      }
+  </style>
+</head>
+
+<style>
+  .btn-transparent {
+    display: inline-flex;
+    align-items: center;
+    background-color: transparent; /* Transparent background */
+    color: #343a40; /* Dark text color for clarity */
+    padding: 8px 16px;
+    border: 1px solid #343a40; /* Border color */
+    border-radius: 5px;
+    font-size: 16px;
+    text-decoration: none;
+  }
+  
+  .position-relative {
+    position: relative;
+  }
+  
+  .cart-list {
+    background-color: #dc3545; /* Badge background color */
+    color: #ffffff; /* Badge text color */
+    border-radius: 50%;
+    padding: 0 6px;
+    font-size: 14px;
+    margin-left: 8px;
+  }
+
+  .cart-footer {
+    
+  }
+  /* Change dropdown item color on active (clicked) and focus */
+.dropdown-item:active, .dropdown-item:focus {
+    background-color: green !important; /* Green background */
+    color: white !important; /* White text (optional, for contrast) */
+}
+
+</style>
+
+<body>
+    <nav class="navbar container-fluid navbar-expand-lg navbar-light bg-white fixed-top " style="z-index: 6000;">
+		<div class="container ">
+		  <a class="navbar-brand" href="/">C4 Restaurant</a>
+		  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		  </button>
+		  <div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav mr-auto">
+			  <li class="nav-item">
+				<a class="nav-link text-dark" href="/">Home</a>
+			  </li>
+			  <li class="nav-item">
+				<a class="nav-link text-dark" href="{% url 'category-list' %}">Menu Categories</a>
+			  </li>
+			 
+			</ul>
+			<div class="ml-auto d-flex align-items-center">
+			  <ul class="navbar-nav">
+				<li class="nav-item">
+				  <a class="nav-link btn-transparent text-dark position-relative" href="{% url 'cart' %}">
+            <i class="fa fa-shopping-cart"></i> Cart 
+            <span class="cart-list">{{ request.session.cartdata|length }}</span>
+          </a>
+          
+				</li>
+				<li class="nav-item dropdown">
+				  <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<i class="fa fa-user"></i> My Account
+				  </a>
+				  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+					  {% if user.is_authenticated %}
+						<a class="dropdown-item" href="{% url 'my_dashboard' %}">Dashboard</a>
+						<form method="POST" action="{% url 'logout' %}">
+						  {% csrf_token %}
+						  <button type="submit" class="dropdown-item">Logout</button>
+						</form>
+					  {% else %}
+						<a class="dropdown-item" href="{% url 'login' %}">Login</a>
+						<a class="dropdown-item" href="{% url 'signup' %}">Signup</a>
+					  {% endif %}
+					</div>
+					
+				</li>
+			  </ul>
+			  <form class="form-inline ml-3" action="/search">
+				<div class="input-group">
+				  <input name="q" type="text" class="form-control" placeholder="search" />
+				  <div class="input-group-append">
+					<button class="btn btn-dark" type="submit" id="button-addon2">Search</button>
+				  </div>
+				</div>
+			  </form>
+			</div>
+		  </div>
+		</div>
+	</nav>
+	
+      
+<div class="container">
+    {% block content %}
+    <!-- Your page content goes here -->
+    {% endblock %}
+</div>
+
+   <footer class="footer pt-4 my-md-5 pt-md-5 border-top">
+       <div class="container-fluid">
+           <div class="row">
+               <div class="col-12 col-md">
+               <a href="#">C4 Restaurant</a>
+               <small class="d-block mb-3 text-muted">&copy; 2017-2024</small>
+               </div>
+               <div class="col-6 col-md">
+               <h5>Features</h5>
+               <ul class="list-unstyled text-small">
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+               </ul>
+               </div>
+               <div class="col-6 col-md">
+               <h5>Resources</h5>
+               <ul class="list-unstyled text-small">
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+               </ul>
+               </div>
+               <div class="col-6 col-md">
+               <h5>About</h5>
+               <ul class="list-unstyled text-small">
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+                   <li><a class="text-muted" href="#"></a></li>
+               </ul>
+               </div>
+           </div>
+       </div>
+   </footer>
+</body>
+</html>

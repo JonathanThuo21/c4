@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+	.cart-box {
+	  position: relative;
+	  right: 20px;
+	  top: 60px;
+	  width: 350px; /* Adjust width as needed */
+	  max-height: 80vh; /* Allows for scrolling if content overflows */
+	  overflow-y: auto; /* Adds vertical scroll if needed */
+	  background-color: #fff;
+	  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	  padding: 15px;
+	  z-index: 1000;
+	  border-radius: 8px;
+	}
+	
+	@media (max-width: 768px) {
+	  .cart-box {
+		position: relative;
+		width: 100%;
+		left: 0;
+		right: 0;
+		top: 0px;
+		max-height: 60vh;
+		box-shadow: none;
+		border-radius: 0;
+	  }
+	}
+	
+	.cart-item {
+	  border: 1px solid #ddd;
+	  border-radius: 8px;
+	  padding: 10px;
+	  background-color: #f9f9f9;
+	}
+	
+	.cart-item p {
+	  margin: 0;
+	}
+	
+	.cart-item .d-flex {
+	  display: flex;
+	  align-items: center;
+	}
+	
+	.cart-item .d-flex.align-items-center {
+	  align-items: center;
+	}
+	
+	.cart-item .d-flex.justify-content-between {
+	  justify-content: space-between;
+	}
+	
+	.cart-item .input-container {
+	  flex-grow: 1;
+	  text-align: right;
+	}
+	
+	.cart-item .product-qty-{{product_id}} {
+	  width: 100%;
+	  max-width: 80px;
+	}
+	
+	.cart-item .btn.update-item {
+	  flex-grow: 1;
+	  text-align: center;
+	}
+	
+	.cart-item .btn.delete-item {
+	  flex-shrink: 0;
+	}
+	
+	.cart-footer {
+	  border-top: 1px solid #ddd;
+	  padding-top: 10px;
+	}
+	
+	.cart-footer .btn {
+	  font-size: 0.8rem;
+	  padding: 5px 10px;
+	}
+	
+	.btn-add {
+	  background-color: #00ff15;
+	  border: none;
+	}
+
+    /* Styles for larger screens */
+.responsive-element {
+    position: fixed;
+    top: 200px;
+    right: 20px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border: 1px solid #ccc;
+    z-index: 1000;
+}
+
+/* Styles for small screen devices */
+@media only screen and (max-width: 768px) {
+    .responsive-element {
+        position: relative;
+        top: auto;
+        right: auto;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border: 1px solid #ccc;
+        z-index: 1000;
+    }
+}
+
+    
+
+  </style>
+
+  <h2 style="font-family: 'Arial', sans-serif; font-size: 24px; font-weight: bold; color: #4CAF50; text-align: center;">
+    Your Order has been successfully received. Please confirm your location
+</h2>
+
+
+  <div id="map" style="height: 300px; "></div>
+<!-- Section with the button included -->
+<section class="responsive-element">
+    <h3 style="font-family: 'Verdana', sans-serif; font-size: 20px; font-weight: bold; color: #333; text-align: left;">
+        Your Location:
+    </h3>
+    <ul style="list-style-type: none; padding: 0;">
+        {% if locations %}
+            <li style="font-family: 'Courier New', monospace; font-size: 16px; color: #555;">
+                <strong>{{ locations.last.location_name }}</strong> 
+                (Lat: {{ locations.last.latitude }}, Lon: {{ locations.last.longitude }})
+            </li>
+        {% else %}
+            <li style="font-family: 'Courier New', monospace; font-size: 16px; color: #555;">No locations available.</li>
+        {% endif %}
+    </ul>
+    
+
+    <!-- Button to Clear Cart -->
+    <form action="{% url 'checkout' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="clear_cart" value="true">
+        <button type="submit" class="custom-button">Confirm Location</button>
+        <a href="{{ whatsapp_url }}" target="_blank" style="display: inline-block; padding: 5px; color: white; background-color: #25D366; border-radius: 50%; text-decoration: none; text-align: center; float: right;">
+            <i class="fab fa-whatsapp" style="font-size: 24px;"></i>
+          </a>
+    </form>
+</section>
+
+
+<!-- checkout.html -->
+<script>
+    function sendLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+    
+                fetch("{% url 'send_location' %}", {  // Use the correct URL for sending location
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
+                    },
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert("Location saved: " + data.location_name);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+    
+    // Call sendLocation when the page loads
+    window.onload = sendLocation;    
+</script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+	<!-- Add custom styles in a <style> block or external CSS file -->
+<style>
+	
+    .custom-button {
+        background-color: #04b519; /* Red background */
+        color: white; /* White text */
+        border: none; /* Remove border */
+        padding: 10px 20px; /* Add padding */
+        font-size: 16px; /* Font size */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s ease; /* Smooth transition */
+    }
+
+    .custom-button:hover {
+        background-color: #146c1e; /* Darker red on hover */
+    }
+</style>
+
+
+
+
+<!-- Button to trigger sending location -->
+<button id="sendLocation"></button>
+
+<!-- Map to visualize stored locations -->
+
+
+<script>
+// Initialize the Leaflet map
+var map = L.map('map').setView([-4.020067, 39.706658], 13); // Default view
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+}).addTo(map);
+
+// Create a layer group to hold markers
+var markersLayer = L.layerGroup().addTo(map);
+
+// API Key for Google Geolocation
+const apiKey = 'AIzaSyBbvL7imemP8u5VEGZlkPncX9nq2RxcTqg';  // Replace with your API key
+
+// Function to get accurate location from Google Geolocation API
+function getAccurateLocation() {
+    return fetch('https://www.googleapis.com/geolocation/v1/geolocate?key=' + apiKey, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const latitude = data.location.lat;
+        const longitude = data.location.lng;
+        return { latitude, longitude };
+    })
+    .catch(error => {
+        console.error('Error with Google Geolocation API:', error);
+    });
+}
+
+// Set up button click event to start sending accurate location using Google Geolocation API
+document.getElementById('sendLocation').addEventListener('click', function() {
+    getAccurateLocation().then(position => {
+        if (position) {
+            const { latitude, longitude } = position;
+
+            // Send the accurate location to the server
+            fetch("{% url 'checkout' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    latitude: latitude,
+                    longitude: longitude
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Location sent successfully:', data);
+
+                // Check what data is being returned
+                if (data.location_name) {
+                    console.log('Location Name:', location.location_name);
+                } else {
+                    console.log('No location name received.');
+                }
+
+                // Update the map with the accurate location
+                L.marker([latitude, longitude])
+                    .addTo(map)
+                    .bindPopup('Accurate Location: ' + (location.location_name || 'No name available'))
+                    .openPopup();
+                map.setView([latitude, longitude], 13);  // Center the map on the accurate location
+            })
+            .catch((error) => {
+                console.error('Error sending location:', error);
+            });
+        }
+    });
+});
+
+
+// Function to fetch and update the map with stored locations
+function fetchStoredLocations() {
+    fetch('/get-locations/')  // Use the correct URL for fetching locations
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetched locations:', data);  // Debugging
+            console.log('Number of locations:', data.length); // Number of locations
+
+            // Clear previous markers
+            markersLayer.clearLayers();
+
+            // Add markers for each location
+            data.forEach(function(location) {
+                L.marker([location.latitude, location.longitude])
+                    .addTo(markersLayer)
+                    .bindPopup('Stored Location: ' + (location.location_name || 'No name available'))
+                    .openPopup();
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching location data:', error);
+            alert('Failed to fetch location data. Please try again later.');
+        });
+}
+
+
+// Auto-refresh map every 5 seconds
+setInterval(fetchStoredLocations, 5000);
+
+
+</script>
+
+
+
+{% endblock %}

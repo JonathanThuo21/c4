@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    .cart-box {
+        position: fixed;
+        right: 20px;
+        top: 60px;
+        width: 350px; /* Adjust width as needed */
+        max-height: 80vh; /* Allows for scrolling if content overflows */
+        overflow-y: auto; /* Adds vertical scroll if needed */
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        z-index: 3000;
+        border-radius: 8px;
+    }
+    
+    @media (max-width: 768px) {
+        .cart-box {
+            width: 100%;
+            left: 0;
+            right: 0;
+            top: 0;
+            max-height: 60vh;
+            box-shadow: none;
+            border-radius: 0;
+        }
+    }
+
+    .cart-item {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        background-color: #f9f9f9;
+    }
+
+    .cart-item p {
+        margin: 0;
+    }
+
+    .cart-item .d-flex {
+        display: flex;
+        align-items: center;
+    }
+
+    .cart-item .d-flex.align-items-center {
+        align-items: center;
+    }
+
+    .cart-item .d-flex.justify-content-between {
+        justify-content: space-between;
+    }
+
+    .cart-item .input-container {
+        flex-grow: 1;
+        text-align: right;
+    }
+
+    .cart-item .product-qty-{{product_id}} {
+        width: 100%;
+        max-width: 80px;
+    }
+
+    .cart-item .btn.update-item {
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .cart-item .btn.delete-item {
+        flex-shrink: 0;
+    }
+
+    .cart-footer {
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+    }
+
+    .cart-footer .btn {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+
+    .btn-add {
+        background-color: #00ff15;
+        border: none;
+    }
+</style>
+<style>
+	.btn-transparent {
+	  display: inline-flex;
+	  align-items: center;
+	  background-color: transparent; /* Transparent background */
+	  color: #343a40; /* Dark text color for clarity */
+	  padding: 8px 16px;
+	  border: 1px solid #343a40; /* Border color */
+	  border-radius: 5px;
+	  font-size: 16px;
+	  text-decoration: none;
+	}
+	
+	.position-relative {
+	  position: relative;
+	}
+	
+	.cart-list {
+	  background-color: #dc3545; /* Badge background color */
+	  color: #ffffff; /* Badge text color */
+	  border-radius: 50%;
+	  padding: 0 6px;
+	  font-size: 14px;
+	  margin-left: 8px;
+	}
+	
+  </style>
+</head>
+<body>
+
+<main>
+<div class="container">
+  <div class="row">
+    <!-- Main content area -->
+    <div class="col-md-8">
+      <!-- Your main content here -->
+    </div>
+
+    <!-- Cart section -->
+    <div class="col-md-4">
+      <div class="cart-box">
+
+
+
+        <div class="cart-box">
+			<a class="nav-link btn-transparent text-dark position-relative" href="{% url 'cart' %}">
+				<i class="fa fa-shopping-cart"></i> Cart 
+				<span class="cart-list"></span>
+			</a>
+			<a href="{{ whatsapp_url }}" target="_blank" style="display: inline-block; padding: 5px; color: white; background-color: #25D366; border-radius: 50%; text-decoration: none; text-align: center; float: right;">
+				<i class="fab fa-whatsapp" style="font-size: 24px;"></i>
+			  </a>
+			
+			<div class="cart-items">
+				{% for product_id, item in cart_data.items %}
+				<div class="cart-item d-flex flex-column mb-3">
+					<div>
+						<p><a><h4>{{item.title}}</h4></a></p>
+						<div class="d-flex align-items-center">
+							<label class="mb-0 me-2">Qty:</label>
+							<div class="input-container">
+                <button type="button" class="qty-btn" onclick="handleDecrease({{ product_id }})">-</button>
+                <input type="number" class="product-qty-{{product_id}}" value="{{item.qty}}" />
+                <button type="button" class="qty-btn" onclick="handleIncrease({{ product_id }})">+</button>
+              </div>
+              <style>
+                
+              </style>
+              <script>
+                function handleDecrease(productId) {
+                    decreaseQty(productId);
+                    document.getElementById('confirm-' + productId).click();
+                }
+                
+                function handleIncrease(productId) {
+                    increaseQty(productId);
+                    document.getElementById('confirm-' + productId).click();
+                }
+                </script>
+                <script>
+                  function increaseQty(productId) {
+                    var qtyInput = document.querySelector(`.product-qty-${productId}`);
+                    qtyInput.value = parseInt(qtyInput.value) + 1;
+                }
+                
+                function decreaseQty(productId) {
+                    var qtyInput = document.querySelector(`.product-qty-${productId}`);
+                    if (parseInt(qtyInput.value) > 1) {
+                        qtyInput.value = parseInt(qtyInput.value) - 1;
+                    }
+                }          
+                </script>
+						</div>
+					</div>
+					<div class="d-flex justify-content-between align-items-center mt-2">
+						<p class="mb-0">Price: KES {{item.price}}</p>
+						<p class="mb-0">Total: KES {% widthratio item.price 1 item.qty %}</p>
+					</div>
+					<div class="mt-2 d-flex align-items-center">
+						<button id="confirm-{{ product_id }}" class="btn btn-sm btn-add update-item" data-item="{{product_id}}">Confirm</button>
+						<button class="btn btn-sm btn-danger delete-item ms-2" data-item="{{product_id}}"><i class="fa fa-trash"></i></button>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+			<div class="cart-footer mt-3">
+				<div class="d-flex justify-content-between">
+					<strong>Total</strong>
+					<strong>KES {{total_amt}}</strong>
+				</div>
+				{% if totalitems %}
+				<div class="text-right mt-2">
+					<a href="{% url 'checkout' %}" class="btn btn-dark btn-sm">Checkout <i class="fa fa-long-arrow-alt-right"></i></a>
+				</div>
+				{% endif %}
+			</div>
+		</div>				  
+		  
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+</body>
+</html>
+	
